@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>meme thing</title>
+    <script src="build/bundle.js"></script>
+    <link rel="stylesheet" href="vendor/skeleton/css/normalize.css">
+    <link rel="stylesheet" href="vendor/skeleton/css/skeleton.css">
+    <style media="screen">
+        html, body {
+            background: #221c25;
+            color: #f4ddff;
+        }
+
+        h1, h2, h3 {
+            color: #8b60a2;
+            text-align: center;
+        }
+
+        th {
+            border-color: #f4ddff;
+        }
+
+        hr, td {
+            border-color: #3f2d49;
+        }
+
+        a {
+            transition: color 200ms, text-shadow 200ms;
+            color: #f2cd5d;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #fff;
+            text-shadow: 0 0 0.2em #f2cd5d;
+        }
+
+        input {
+            transition: border-color 200ms, background-color 200ms;
+            padding: 0.5rem;
+            border: none;
+            border-bottom: 2px solid #5f416f;
+            background-color: #3f2d49;
+        }
+
+        input:hover {
+            border-bottom-color: #8b60a2;
+            background-color: #543d61;
+        }
+
+        input:focus {
+            outline: none;
+            border-bottom-color: #f4ddff;
+        }
+
+        .container {
+            margin: 2rem auto;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 40px;
+            height: 2em;
+            margin: -0.75em 0.25em;
+            vertical-align: middle;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -o-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+
+        .copyright {
+            font-style: italic;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>meme thing</h1>
+
+            <p>see which pokemon are closest to ur height &amp; weight idk</p>
+        </header>
+
+        <section class="row">
+            <div class="three columns">
+                <label for="height">height</label>
+                <input class="u-full-width" name="height" value="7'7&quot;">
+            </div>
+            <div class="three columns">
+                <label for="height">weight</label>
+                <input class="u-full-width" name="weight" value="210 kg">
+            </div>
+            <div class="five columns offset-by-one">
+                <p>be sure to include the units! a bare number doesn't mean much
+                    in today's global society, probably</p>
+            </div>
+        </section>
+
+        <hr>
+        <section class="row">
+            <h2>results</h2>
+            <div class="four columns offset-by-two">
+                <table class="u-full-width">
+                <thead>
+                    <tr><th>height</th></tr>
+                </thead>
+                <tbody class="output by-height"></tbody>
+                </table>
+            </div>
+
+            <div class="four columns">
+                <table class="u-full-width">
+                <thead>
+                    <tr><th>weight</th></tr>
+                </thead>
+                <tbody class="output by-weight"></tbody>
+                </table>
+            </div>
+
+            <!-- <section class="four columns offset-by-two">
+                <h3>by height</h3>
+                <ul class="output by-height"></ul>
+            </section>
+
+            <section class="four columns offset-by-one">
+                <h3>by weight</h3>
+                <ul class="output by-weight"></ul>
+            </section> -->
+        </section>
+
+        <hr>
+        <footer class="row copyright">
+            <p>this silly thing contains code &amp; data derived from
+                <a href="https://github.com/veekun/pokedex">spline-pokedex</a>,
+                which is licensed under the ultra permissive (not a legal term)
+                mit license</p>
+
+            <p>as such, it also includes data &amp; graphics extracted from the
+                pokemon video games. like my source, i believe my use of these
+                assets as part of a not-for-profit web toy falls under
+                <strong>fair use</strong></p>
+
+            <p>but light &amp; dark are on &amp; off<br>
+                and all the rest is public domain</p>
+        </footer>
+    </div>
+
+    <script>app()</script>
+</body>
+</html>

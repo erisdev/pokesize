@@ -1,0 +1,17 @@
+{
+  "name": "pokesize",
+  "version": "1.0.0",
+  "description": "meme thing",
+  "main": "app/index.html",
+  "dependencies": {
+    "binarysearch": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "scripts/build.sh",
+    "watch": "scripts/watch.sh",
+    "download-data": "python scripts/fetchdata.py"
+  },
+  "author": "eris <riley@erismetis.name>",
+  "license": "UNLICENSED"
+}
