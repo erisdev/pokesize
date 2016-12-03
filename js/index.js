@@ -102,26 +102,26 @@ function render_results(key, results) {
 
         // boring
         var row = document.createElement('tr');
-        table.append(row);
+        table.appendChild(row);
 
         // wish we had a template engine
         var cell = document.createElement('td');
-        row.append(cell);
+        row.appendChild(cell);
 
         // getting more interesting
         var link = document.createElement('a');
         link.href = dex_url;
-        cell.append(link);
+        cell.appendChild(link);
 
         // ...
         var icon = document.createElement('i');
         icon.className = 'icon';
         icon.style.backgroundImage = `url("${icon_url}")`;
-        link.append(icon);
+        link.appendChild(icon);
 
         var label = document.createElement('span');
         label.textContent = it.display_name;
-        link.append(label);
+        link.appendChild(label);
     }
 }
 
