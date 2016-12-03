@@ -40,7 +40,7 @@ function debounce(wait, func) {
     return function() {
         if (timer) clearTimeout(timer);
         timer = setTimeout(function() {
-            timeout = null;
+            timer = null;
             func();
         }, wait);
     };
