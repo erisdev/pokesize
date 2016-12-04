@@ -123,6 +123,7 @@ module.exports = {
         'dr':   'dram',
         'oz':   'ounce',
         'lb':   'pound',
+        'lbs':  'pound', // at kiri's request
         'st':   'stone',
         'qtr':  'quarter',
         'cwt':  'hundredweight',

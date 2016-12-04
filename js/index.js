@@ -92,11 +92,11 @@ function render_results(key, results) {
         // more readable than the alternative imo. thank u eevee for veekun
         var dex_url, icon_url;
         if (it.form) {
-            dex_url = `https://veekun.com/dex/pokemon/${it.species}?form=${it.form}`;
+            dex_url = `https://veekun.com/dex/pokemon/${it.species}/flavor?form=${it.form}`;
             icon_url = `vendor/pokedex-media/pokemon/icons/${it.dex}-${it.form}.png`;
         }
         else {
-            dex_url = `https://veekun.com/dex/pokemon/${it.species}`;
+            dex_url = `https://veekun.com/dex/pokemon/${it.species}/flavor`;
             icon_url = `vendor/pokedex-media/pokemon/icons/${it.dex}.png`;
         }
 
