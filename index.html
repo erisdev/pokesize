@@ -53,6 +53,10 @@
             border-bottom-color: #f4ddff;
         }
 
+        td.numeric {
+            text-align: right;
+        }
+
         .container {
             margin: 2rem auto;
         }
@@ -105,21 +109,22 @@
         </section>
 
         <hr>
+        <h2>results</h2>
+
         <section class="row">
-            <h2>results</h2>
-            <div class="four columns offset-by-two">
+            <div class="six columns">
                 <table class="u-full-width">
                 <thead>
-                    <tr><th>height</th></tr>
+                    <tr><th colspan="3">by height</th></tr>
                 </thead>
                 <tbody class="output by-height"></tbody>
                 </table>
             </div>
 
-            <div class="four columns">
+            <div class="six columns">
                 <table class="u-full-width">
                 <thead>
-                    <tr><th>weight</th></tr>
+                    <tr><th colspan="3">by weight</th></tr>
                 </thead>
                 <tbody class="output by-weight"></tbody>
                 </table>

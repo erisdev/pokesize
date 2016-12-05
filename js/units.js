@@ -31,6 +31,8 @@ module.exports = {
 
     // 1 of each unit is X meters
     height_units: {
+        'pokemon':          0.1,
+
         'meter':            1,
         'metre':            1,
 
@@ -98,6 +100,8 @@ module.exports = {
 
     // 1 of these is X kilograms
     weight_units: {
+        'pokemon':          0.1,
+
         'grain':            0.00006479891,
         'dram':             0.001771845,
         'ounce':            0.02834952,

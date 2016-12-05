@@ -80,6 +80,31 @@ function search(key, size) {
     return result[1].map((id) => db.pokemon[id]).sort(by_name);
 }
 
+function dex_url(pokemon) {
+    return `https://veekun.com/dex/pokemon/${pokemon.species}/flavor?form=${pokemon.form}`;
+}
+
+function icon_url(pokemon) {
+    var icon_name = [pokemon.dex];
+    if (pokemon.form) icon_name.push(pokemon.form);
+    return `vendor/pokedex-media/pokemon/icons/${icon_name.join('-')}.png`;
+}
+
+function format_size(pokemon, key) {
+    if (key === 'height') {
+        var metres = pokemon[key] * units.height_units.pokemon;
+        var feet   = Math.floor(metres / units.height_units.foot);
+        var inches = Math.round(metres / units.height_units.inch) % 12;
+        return [`${metres.toFixed(1)} m`, `${feet}'${inches}"`];
+    }
+    else if (key === 'weight') {
+        var kg = pokemon[key] * units.weight_units.pokemon;
+        var lb = kg / units.weight_units.pound;
+        return [`${kg.toFixed(1)} kg`, `${lb.toFixed(1)} lb.`];
+    }
+    return ['???', '???'];
+}
+
 // the boring part, or the interesting part, depending on who you are. turns the
 // search results into a nice table so we have something to look at
 function render_results(key, results) {
@@ -87,41 +112,24 @@ function render_results(key, results) {
     var table = document.querySelector(`.output.by-${key}`);
     table.innerHTML = '';
 
-    for (let it of results) {
-        // figure out icon & dex urls. code duplication sucks but it was
-        // more readable than the alternative imo. thank u eevee for veekun
-        var dex_url, icon_url;
-        if (it.form) {
-            dex_url = `https://veekun.com/dex/pokemon/${it.species}/flavor?form=${it.form}`;
-            icon_url = `vendor/pokedex-media/pokemon/icons/${it.dex}-${it.form}.png`;
-        }
-        else {
-            dex_url = `https://veekun.com/dex/pokemon/${it.species}/flavor`;
-            icon_url = `vendor/pokedex-media/pokemon/icons/${it.dex}.png`;
-        }
+    var range = document.createRange();
+    range.selectNodeContents(table);
 
-        // boring
-        var row = document.createElement('tr');
-        table.appendChild(row);
+    for (let pokemon of results) {
+        var [metric, imperial] = format_size(pokemon, key);
 
-        // wish we had a template engine
-        var cell = document.createElement('td');
-        row.appendChild(cell);
-
-        // getting more interesting
-        var link = document.createElement('a');
-        link.href = dex_url;
-        cell.appendChild(link);
-
-        // ...
-        var icon = document.createElement('i');
-        icon.className = 'icon';
-        icon.style.backgroundImage = `url("${icon_url}")`;
-        link.appendChild(icon);
-
-        var label = document.createElement('span');
-        label.textContent = it.display_name;
-        link.appendChild(label);
+        table.appendChild(range.createContextualFragment(`
+            <tr>
+                <td>
+                    <a href="${dex_url(pokemon)}">
+                        <i class="icon" style="background-image:url('${icon_url(pokemon)}')"></i>
+                        <span>${pokemon.display_name}</span>
+                    </a>
+                </td>
+                <td class="numeric">${metric}</td>
+                <td class="numeric">${imperial}</td>
+            </tr>
+        `));
     }
 }
 

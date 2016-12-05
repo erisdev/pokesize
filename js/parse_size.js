@@ -24,12 +24,12 @@ module.exports = function parse_size(size, height_or_weight) {
     if (height_or_weight == 'height') {
         units = height_units;
         abbrs = height_abbrs;
-        pokemon_unit = 0.1;
+        pokemon_unit = units.pokemon;
     }
     else if (height_or_weight == 'weight') {
         units = weight_units;
         abbrs = weight_abbrs;
-        pokemon_unit = 0.1;
+        pokemon_unit = units.pokemon;
     }
 
     // A size looks like:

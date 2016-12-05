@@ -116,6 +116,30 @@ function search(key, size) {
     }).sort(by_name);
 }
 
+function dex_url(pokemon) {
+    return 'https://veekun.com/dex/pokemon/' + pokemon.species + '/flavor?form=' + pokemon.form;
+}
+
+function icon_url(pokemon) {
+    var icon_name = [pokemon.dex];
+    if (pokemon.form) icon_name.push(pokemon.form);
+    return 'vendor/pokedex-media/pokemon/icons/' + icon_name.join('-') + '.png';
+}
+
+function format_size(pokemon, key) {
+    if (key === 'height') {
+        var metres = pokemon[key] * units.height_units.pokemon;
+        var feet = Math.floor(metres / units.height_units.foot);
+        var inches = Math.round(metres / units.height_units.inch) % 12;
+        return [metres.toFixed(1) + ' m', feet + '\'' + inches + '"'];
+    } else if (key === 'weight') {
+        var kg = pokemon[key] * units.weight_units.pokemon;
+        var lb = kg / units.weight_units.pound;
+        return [kg.toFixed(1) + ' kg', lb.toFixed(1) + ' lb.'];
+    }
+    return ['???', '???'];
+}
+
 // the boring part, or the interesting part, depending on who you are. turns the
 // search results into a nice table so we have something to look at
 function render_results(key, results) {
@@ -123,47 +147,23 @@ function render_results(key, results) {
     var table = document.querySelector('.output.by-' + key);
     table.innerHTML = '';
 
+    var range = document.createRange();
+    range.selectNodeContents(table);
+
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
         for (var _iterator2 = results[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var it = _step2.value;
+            var pokemon = _step2.value;
 
-            // figure out icon & dex urls. code duplication sucks but it was
-            // more readable than the alternative imo. thank u eevee for veekun
-            var dex_url, icon_url;
-            if (it.form) {
-                dex_url = 'https://veekun.com/dex/pokemon/' + it.species + '/flavor?form=' + it.form;
-                icon_url = 'vendor/pokedex-media/pokemon/icons/' + it.dex + '-' + it.form + '.png';
-            } else {
-                dex_url = 'https://veekun.com/dex/pokemon/' + it.species + '/flavor';
-                icon_url = 'vendor/pokedex-media/pokemon/icons/' + it.dex + '.png';
-            }
+            var _format_size = format_size(pokemon, key),
+                _format_size2 = _slicedToArray(_format_size, 2),
+                metric = _format_size2[0],
+                imperial = _format_size2[1];
 
-            // boring
-            var row = document.createElement('tr');
-            table.appendChild(row);
-
-            // wish we had a template engine
-            var cell = document.createElement('td');
-            row.appendChild(cell);
-
-            // getting more interesting
-            var link = document.createElement('a');
-            link.href = dex_url;
-            cell.appendChild(link);
-
-            // ...
-            var icon = document.createElement('i');
-            icon.className = 'icon';
-            icon.style.backgroundImage = 'url("' + icon_url + '")';
-            link.appendChild(icon);
-
-            var label = document.createElement('span');
-            label.textContent = it.display_name;
-            link.appendChild(label);
+            table.appendChild(range.createContextualFragment('\n            <tr>\n                <td>\n                    <a href="' + dex_url(pokemon) + '">\n                        <i class="icon" style="background-image:url(\'' + icon_url(pokemon) + '\')"></i>\n                        <span>' + pokemon.display_name + '</span>\n                    </a>\n                </td>\n                <td class="numeric">' + metric + '</td>\n                <td class="numeric">' + imperial + '</td>\n            </tr>\n        '));
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -254,11 +254,11 @@ module.exports = function parse_size(size, height_or_weight) {
     if (height_or_weight == 'height') {
         units = height_units;
         abbrs = height_abbrs;
-        pokemon_unit = 0.1;
+        pokemon_unit = units.pokemon;
     } else if (height_or_weight == 'weight') {
         units = weight_units;
         abbrs = weight_abbrs;
-        pokemon_unit = 0.1;
+        pokemon_unit = units.pokemon;
     }
 
     // A size looks like:
@@ -480,6 +480,8 @@ module.exports = {
 
     // 1 of each unit is X meters
     height_units: {
+        'pokemon': 0.1,
+
         'meter': 1,
         'metre': 1,
 
@@ -547,6 +549,8 @@ module.exports = {
 
     // 1 of these is X kilograms
     weight_units: {
+        'pokemon': 0.1,
+
         'grain': 0.00006479891,
         'dram': 0.001771845,
         'ounce': 0.02834952,
