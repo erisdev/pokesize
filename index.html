@@ -16,14 +16,6 @@
             text-align: center;
         }
 
-        th {
-            border-color: #f4ddff;
-        }
-
-        hr, td {
-            border-color: #3f2d49;
-        }
-
         a {
             transition: color 200ms, text-shadow 200ms;
             color: #f2cd5d;
@@ -53,22 +45,24 @@
             border-bottom-color: #f4ddff;
         }
 
-        td.numeric {
-            text-align: right;
+        th {
+            border-color: #f4ddff;
+            text-align: center;
         }
 
-        .container {
-            margin: 2rem auto;
+        hr, td {
+            border-color: #3f2d49;
         }
 
-        .icon {
-            display: inline-block;
-            width: 40px;
-            height: 2em;
-            margin: -0.75em 0.25em;
-            vertical-align: middle;
-            background-size: contain;
-            background-position: center;
+        th, td {
+            padding: 8px 10px;
+        }
+
+        tr.pokemon td:first-child {
+            padding-left: 60px;
+
+            /*background-size: contain;*/
+            background-position: 10px center;
             background-repeat: no-repeat;
 
             image-rendering: -moz-crisp-edges;
@@ -76,6 +70,24 @@
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
             -ms-interpolation-mode: nearest-neighbor;
+        }
+
+        td.numeric {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        tr.more ~ tr {
+            display: none;
+        }
+
+        tr.more td {
+            text-align: center;
+            cursor: s-resize;
+        }
+
+        .container {
+            margin: 2rem auto;
         }
 
         .copyright {
@@ -115,7 +127,11 @@
             <div class="six columns">
                 <table class="u-full-width">
                 <thead>
-                    <tr><th colspan="3">by height</th></tr>
+                    <tr>
+                        <th>matches by height</th>
+                        <th>&#x1F4CF;</th>
+                        <th>&Delta;</th>
+                    </tr>
                 </thead>
                 <tbody class="output by-height"></tbody>
                 </table>
@@ -124,7 +140,11 @@
             <div class="six columns">
                 <table class="u-full-width">
                 <thead>
-                    <tr><th colspan="3">by weight</th></tr>
+                    <tr>
+                        <th>matches by weight</th>
+                        <th>&#x2696;&#xFE0F;</th>
+                        <th>&Delta;</th>
+                    </tr>
                 </thead>
                 <tbody class="output by-weight"></tbody>
                 </table>

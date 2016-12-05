@@ -5,8 +5,6 @@ module.exports=[{"weight": 69, "form": "", "display_name": "bulbasaur", "species
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var bs = require('binarysearch');
 
 var parse_size = require('./parse_size');
@@ -14,54 +12,15 @@ var units = require('./units');
 
 var db = function () {
     var pokemon = require('../db/pokemon.json');
-    var by_height = new Map(),
-        by_weight = new Map();
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = pokemon.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var _step$value = _slicedToArray(_step.value, 2),
-                i = _step$value[0],
-                row = _step$value[1];
-
-            if (!by_weight.has(row.weight)) by_weight.set(row.weight, [i]);else by_weight.get(row.weight).push(i);
-
-            if (!by_height.has(row.height)) by_height.set(row.height, [i]);else by_height.get(row.height).push(i);
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
     return {
-        height: [].concat(_toConsumableArray(by_height.entries())).sort(function (a, b) {
-            return a[0] - b[0];
+        height: bs.indexObject(pokemon, function (row) {
+            return row.height;
         }),
-        weight: [].concat(_toConsumableArray(by_weight.entries())).sort(function (a, b) {
-            return a[0] - b[0];
+        weight: bs.indexObject(pokemon, function (row) {
+            return row.weight;
         }),
         pokemon: pokemon
     };
-
-    // XXX unfortunately looks like bs.closest only returns physically closest
-    // return {
-    //     height: bs.indexObject(pokemon, (row) => row.height),
-    //     weight: bs.indexObject(pokemon, (row) => row.weight),
-    //     pokemon
-    // };
 }();
 
 // yes, this is a trivial implementation that doesn't handle arguments or
@@ -82,38 +41,79 @@ function debounce(wait, func) {
 function handle_input(input) {
     if (input.value !== '') {
         // input.name is either height or width, which "happens"
-        var size = parse_size(input.value, input.name);
+        var _parse_size = parse_size(input.value, input.name),
+            _parse_size2 = _slicedToArray(_parse_size, 2),
+            size = _parse_size2[0],
+            query = _parse_size2[1];
+
         if (size === 0) {
             // eevee's code didn't include error handling and i'm too lazy to
             // add it, but we can assume 0 is a failure case because who the
             // hell is 0 anything. clear the results list!
             input.classList.add('error');
-            render_results(input.name, []);
+            render_results(input.name, 0, []);
         } else {
             // ok cool that looks like a measurement ig. go ahead & run a search
             input.classList.remove('error');
             var results = search(input.name, size);
-            render_results(input.name, results);
+            render_results(input.name, size, query, results);
         }
     }
 }
 
 // called by handle_input to find pokemon matching the height or weight entered..
 function search(key, size) {
-    // binary search the index table sorted by `key`. bs returns index
-    var by_size = function by_size(a, b) {
-        return a[0] - b[0];
-    };
-    var result = db[key][bs.closest(db[key], [size], by_size)];
+    var min_results = 10; // arbitrary
 
-    // map the indices in the result to actual records & return them sorted by
-    // display name
-    var by_name = function by_name(a, b) {
-        return a.display_name.localeCompare(b.display_name);
-    };
-    return result[1].map(function (id) {
-        return db.pokemon[id];
-    }).sort(by_name);
+    var fuzziness = 2;
+    var first = -1,
+        last = -1;
+
+    while (last - first < min_results) {
+        var _bs$range = bs.range(db[key], size - fuzziness, size + fuzziness);
+
+        var _bs$range2 = _slicedToArray(_bs$range, 2);
+
+        first = _bs$range2[0];
+        last = _bs$range2[1];
+
+        fuzziness *= Math.SQRT2;
+    }
+
+    var results = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = db[key].slice(first, last)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var id = _step.value.k;
+
+            results.push(db.pokemon[id]);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    results.sort(function (a, b) {
+        var diff_a = Math.abs(size - a[key]);
+        var diff_b = Math.abs(size - b[key]);
+
+        if (diff_a !== diff_b) return diff_a - diff_b;else if (a[key] !== a[key]) return a[key] - b[key];else return a.display_name.localeCompare(b.display_name);
+    });
+
+    return results;
 }
 
 function dex_url(pokemon) {
@@ -126,30 +126,51 @@ function icon_url(pokemon) {
     return 'vendor/pokedex-media/pokemon/icons/' + icon_name.join('-') + '.png';
 }
 
-function format_size(pokemon, key) {
-    if (key === 'height') {
-        var metres = pokemon[key] * units.height_units.pokemon;
-        var feet = Math.floor(metres / units.height_units.foot);
-        var inches = Math.round(metres / units.height_units.inch) % 12;
-        return [metres.toFixed(1) + ' m', feet + '\'' + inches + '"'];
-    } else if (key === 'weight') {
-        var kg = pokemon[key] * units.weight_units.pokemon;
-        var lb = kg / units.weight_units.pound;
-        return [kg.toFixed(1) + ' kg', lb.toFixed(1) + ' lb.'];
+function format_size(key, size, query) {
+    var _query$0$slice = query[0].slice(1),
+        _query$0$slice2 = _slicedToArray(_query$0$slice, 2),
+        prefix = _query$0$slice2[0],
+        unit = _query$0$slice2[1];
+
+    size *= units.height_units.pokemon;
+
+    if (unit === 'foot' && !prefix) {
+        // special case handling: if the first unit was feet do FT'IN"
+        var feet = Math.floor(size / units.height_units.foot);
+        var inches = Math.round(size / units.height_units.inch) % 12;
+        return feet + '\'' + inches + '"';
     }
-    return ['???', '???'];
+
+    if (prefix) size /= units.si_prefixes[prefix];
+
+    if (key === 'height') size /= units.height_units[unit];else if (key === 'weight') size /= units.weight_units[unit];else return '???';
+
+    var result = size.toFixed(1) + ' ';
+    if (unit in units.abbr_for) {
+        if (prefix) result += units.abbr_for[prefix];
+        result += units.abbr_for[unit];
+    } else {
+        if (prefix) result += prefix;
+        result += unit;
+    }
+
+    return result;
 }
 
 // the boring part, or the interesting part, depending on who you are. turns the
 // search results into a nice table so we have something to look at
-function render_results(key, results) {
+function render_results(key, size, query, results) {
+    var max_results = 7;
+
     // find the appropriate table element based on key
     var table = document.querySelector('.output.by-' + key);
     table.innerHTML = '';
 
+    // need to select the table's insides or tr & td elements will vanish
     var range = document.createRange();
     range.selectNodeContents(table);
 
+    var rendered_count = 0;
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
@@ -158,12 +179,11 @@ function render_results(key, results) {
         for (var _iterator2 = results[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var pokemon = _step2.value;
 
-            var _format_size = format_size(pokemon, key),
-                _format_size2 = _slicedToArray(_format_size, 2),
-                metric = _format_size2[0],
-                imperial = _format_size2[1];
 
-            table.appendChild(range.createContextualFragment('\n            <tr>\n                <td>\n                    <a href="' + dex_url(pokemon) + '">\n                        <i class="icon" style="background-image:url(\'' + icon_url(pokemon) + '\')"></i>\n                        <span>' + pokemon.display_name + '</span>\n                    </a>\n                </td>\n                <td class="numeric">' + metric + '</td>\n                <td class="numeric">' + imperial + '</td>\n            </tr>\n        '));
+            table.appendChild(range.createContextualFragment('\n            <tr class="pokemon">\n                <td style="background-image:url(\'' + icon_url(pokemon) + '\')">\n                    <a href="' + dex_url(pokemon) + '">' + pokemon.display_name + '</a>\n                </td>\n                <td class="numeric">' + format_size(key, pokemon[key], query) + '</td>\n                <td class="numeric">' + Math.round((pokemon[key] - size) / size * 100) + '%</td>\n            </tr>\n        '));
+
+            rendered_count += 1;
+            if (rendered_count == max_results) table.appendChild(range.createContextualFragment('<tr class="more"><td colspan="3">&hellip;</td></tr>'));
         }
     } catch (err) {
         _didIteratorError2 = true;
@@ -183,6 +203,18 @@ function render_results(key, results) {
 
 // the entry point, where we bind our event listeners for posterity
 window.app = function () {
+    document.body.addEventListener('click', function (event) {
+        var target = event.target;
+        while (target) {
+            if (target.tagName === 'TR' && target.classList.contains('more')) {
+                target.parentElement.removeChild(target);
+                event.stopPropagation();
+                event.preventDefault();
+                break;
+            } else target = target.parentElement;
+        }
+    }, false);
+
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
     var _iteratorError3 = undefined;
@@ -318,14 +350,15 @@ module.exports = function parse_size(size, height_or_weight) {
     // Alright!  Got a list of individual units.  Awesome.
     // Now go through them and try to turn them into something intelligible.
     // Use a while loop, because the list might be modified in-flight
+    var query = [];
     var result = 0.0;
     while (parts.length > 0) {
         var done = false;
 
-        var _parts$pop = parts.pop(),
-            _parts$pop2 = _slicedToArray(_parts$pop, 2),
-            number = _parts$pop2[0],
-            unit_chunks = _parts$pop2[1];
+        var _parts$shift = parts.shift(),
+            _parts$shift2 = _slicedToArray(_parts$shift, 2),
+            number = _parts$shift2[0],
+            unit_chunks = _parts$shift2[1];
 
         if (unit_chunks.length == 0) {
             // What?
@@ -414,6 +447,7 @@ module.exports = function parse_size(size, height_or_weight) {
                 }
                 if (units.hasOwnProperty(base_unit)) {
                     // Successful match!  Convert and we are DONE
+                    query.push([number, _prefix, base_unit]);
                     result += number * units[base_unit] * (si_prefixes[_prefix] || 1.0) / pokemon_unit;
                     done = true;
                     break;
@@ -441,7 +475,7 @@ module.exports = function parse_size(size, height_or_weight) {
         // XXX fallback: assume 'inch meter' is two parts
     }
 
-    return result;
+    return [result, query];
 };
 
 },{"./units":4}],4:[function(require,module,exports){
@@ -584,6 +618,50 @@ module.exports = {
         'lbt': 'troypound',
         'dwt': 'pennyweight',
         'g': 'gram'
+    },
+
+    abbr_for: {
+        'grain': 'gr',
+        'dram': 'dr',
+        'ounce': 'oz',
+        'pound': 'lb',
+        'stone': 'st',
+        'quarter': 'qtr',
+        'hundredweight': 'cwt',
+        'troyounce': 'ozt',
+        'troypound': 'lbt',
+        'pennyweight': 'dwt',
+
+        'gram': 'g',
+        'ångström': 'Å',
+        'meter': 'm',
+        'inch': 'in',
+        'hand': 'h',
+        'foot': 'ft',
+        'yard': 'yd',
+        'mile': 'mi',
+        'link': 'li',
+        'rod': 'rd',
+        'chain': 'ch',
+        'furlong': 'fur',
+        'league': 'lea',
+        'fathom': 'ftm',
+        'cable': 'cb',
+        'nauticalmile': 'NM',
+        'astronomicalunit': 'au',
+        'lightyear': 'ly',
+        'parsec': 'pc',
+
+        'yotta': 'Y', 'yocto': 'y',
+        'zetta': 'Z', 'zepto': 'z',
+        'exa': 'E', 'atto': 'a',
+        'peta': 'P', 'femto': 'f',
+        'tera': 'T', 'pico': 'p',
+        'giga': 'G', 'nano': 'n',
+        'mega': 'M', 'micro': 'µ',
+        'kilo': 'k', 'milli': 'm',
+        'hecta': 'h', 'centi': 'c',
+        'deca': 'da', 'deci': 'd'
     }
 };
 

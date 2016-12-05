@@ -92,14 +92,14 @@ module.exports = function parse_size(size, height_or_weight) {
         parts.push([number, unit_chunks]);
     }
 
-
     // Alright!  Got a list of individual units.  Awesome.
     // Now go through them and try to turn them into something intelligible.
     // Use a while loop, because the list might be modified in-flight
+    var query = [];
     var result = 0.0;
     while (parts.length > 0) {
         var done = false;
-        var [number, unit_chunks] = parts.pop();
+        var [number, unit_chunks] = parts.shift();
 
         if (unit_chunks.length == 0) {
             // What?
@@ -180,6 +180,7 @@ module.exports = function parse_size(size, height_or_weight) {
             }
             if (units.hasOwnProperty(base_unit)) {
                 // Successful match!  Convert and we are DONE
+                query.push([number, prefix, base_unit]);
                 result += number * units[base_unit]
                         * (si_prefixes[prefix] || 1.0) / pokemon_unit;
                 done = true;
@@ -194,5 +195,5 @@ module.exports = function parse_size(size, height_or_weight) {
         // XXX fallback: assume 'inch meter' is two parts
     }
 
-    return result;
+    return [result, query];
 }
