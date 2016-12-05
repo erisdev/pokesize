@@ -97,7 +97,7 @@ function format_size(key, size, query) {
         // special case handling: if the first unit was feet do FT'IN"
         var feet   = Math.floor(size / units.height_units.foot);
         var inches = Math.round(size / units.height_units.inch) % 12;
-        return `${feet}'${inches}"`
+        return `${feet}&#8242;${('0' + inches).slice(-2)}&#8243;`;
     }
 
     if (prefix)
