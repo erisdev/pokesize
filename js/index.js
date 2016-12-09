@@ -141,7 +141,8 @@ function render_results(key, size, query, results) {
         table.appendChild(range.createContextualFragment(`
             <tr class="pokemon">
                 <td style="background-image:url('${icon_url(pokemon)}')">
-                    <a href="${dex_url(pokemon)}">${pokemon.display_name}</a>
+                    <a href="${dex_url(pokemon)}" target="_blank">
+                        ${pokemon.display_name}</a>
                 </td>
                 <td class="numeric">${format_size(key, pokemon[key], query)}</td>
                 <td class="numeric">${Math.round((pokemon[key] - size) / size * 100)}%</td>
